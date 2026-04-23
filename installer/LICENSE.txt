@@ -1,0 +1,52 @@
+THOR BITCOIN INTELLIGENCE DASHBOARD
+Commercial License & Disclaimer
+
+Copyright (c) 2026 Renault Franklin / RFBitcoin
+thor.rfbitcoin.com | rfranklinbtc@gmail.com
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IMPORTANT DISCLAIMER — PLEASE READ CAREFULLY
+
+THOR provides market intelligence and signal analysis for
+informational purposes only.
+
+NOTHING on this platform constitutes:
+  - Financial advice
+  - Investment recommendations
+  - An offer to buy or sell any security or cryptocurrency
+  - A solicitation of any investment
+
+PAST SIGNAL PERFORMANCE DOES NOT GUARANTEE FUTURE RESULTS.
+
+Trading cryptocurrencies involves significant risk of loss.
+You may lose some or all of your invested capital. Only trade
+with money you can afford to lose. Always conduct your own
+research and consult a qualified financial advisor before
+making any investment decisions.
+
+THOR does not execute trades on your behalf. The open-source
+TradingExecutor module (Elite+ tier) is software you run on
+your own hardware, using your own exchange account, under
+your full control and responsibility.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+LICENSE TERMS
+
+This software is licensed, not sold. Your subscription grants
+you a personal, non-transferable license to install and use
+THOR on devices you own.
+
+You may NOT:
+  - Redistribute or resell this software
+  - Share your download link or license with others
+  - Reverse-engineer or republish the signal methodology
+    as your own product
+
+This license is governed by the laws of Ontario, Canada.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+By clicking "I agree" you confirm that you have read,
+understood, and accept these terms and the disclaimer above.

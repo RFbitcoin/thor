@@ -26,6 +26,7 @@ AppSupportURL={#AppURL}
 DefaultDirName=C:\THOR
 DefaultGroupName={#AppShortName}
 AllowNoIcons=yes
+LicenseFile=LICENSE.txt
 OutputDir=..\dist
 OutputBaseFilename=THOR-Setup
 Compression=lzma2/max
@@ -41,6 +42,8 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 [Files]
 ; The PowerShell installer script — this does all the real work
 Source: "install_windows.ps1"; DestDir: "{tmp}"; Flags: deleteafterinstall
+; License file (shown in wizard — also installed for reference)
+Source: "LICENSE.txt"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 Name: "{group}\THOR Dashboard"; Filename: "{app}\launch.bat"
