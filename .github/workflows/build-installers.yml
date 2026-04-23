@@ -28,7 +28,7 @@ jobs:
     name: Build Windows Installer
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.2.2
 
       - name: Install Inno Setup
         run: choco install innosetup --no-progress -y
@@ -44,7 +44,7 @@ jobs:
         shell: pwsh
 
       - name: Upload Windows installer
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.6.2
         with:
           name: THOR-Setup-Windows
           path: dist/THOR-Setup.exe
@@ -55,13 +55,13 @@ jobs:
     name: Build macOS Installer
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.2.2
 
       - name: Build THOR-Installer.pkg
         run: bash installer/build_mac.sh
 
       - name: Upload macOS installer
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.6.2
         with:
           name: THOR-Installer-macOS
           path: dist/THOR-Installer.pkg
@@ -74,16 +74,16 @@ jobs:
     needs: [build-windows, build-mac]
     if: github.ref == 'refs/heads/main'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.2.2
 
       - name: Download Windows artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v4.3.0
         with:
           name: THOR-Setup-Windows
           path: release/
 
       - name: Download macOS artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v4.3.0
         with:
           name: THOR-Installer-macOS
           path: release/
