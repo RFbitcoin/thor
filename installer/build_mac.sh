@@ -44,6 +44,7 @@ cat > "$BUILD_DIR/distribution.xml" << DISTEOF
     <organization>com.rfbitcoin</organization>
     <domains enable_anywhere="false" enable_currentUserHome="true" enable_localSystem="true"/>
     <options customize="never" require-scripts="false" rootVolumeOnly="false"/>
+    <os-version min="10.15"/>
     <welcome file="welcome.html" mime-type="text/html"/>
     <readme  file="readme.html"  mime-type="text/html"/>
     <license file="license.html" mime-type="text/html"/>

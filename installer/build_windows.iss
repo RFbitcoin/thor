@@ -33,8 +33,7 @@ Compression=lzma2/max
 SolidCompression=yes
 WizardStyle=modern
 PrivilegesRequired=admin
-MinVersion=10.0
-ArchitecturesInstallIn64BitMode=x64
+ArchitecturesInstallIn64BitMode=x64 arm64
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -56,7 +55,7 @@ Name: "desktopicon"; Description: "Create a &desktop icon"; GroupDescription: "A
 ; Run the PowerShell installer after extraction
 Filename: "powershell.exe"; \
   Parameters: "-ExecutionPolicy Bypass -NoProfile -WindowStyle Normal -File ""{tmp}\install_windows.ps1"""; \
-  Flags: runhidden waituntilterminated; \
+  Flags: waituntilterminated; \
   StatusMsg: "Installing THOR (this may take a few minutes)..."
 
 ; Open browser when done

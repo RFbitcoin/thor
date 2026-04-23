@@ -4,17 +4,15 @@
 # ─────────────────────────────────────────────────────────────────────────────
 #Requires -Version 5.1
 
-$ErrorActionPreference = "Stop"
-
-$DIST_URL   = "https://thor.rfbitcoin.com/dist/thor-latest.zip"
-$NSSM_URL   = "https://nssm.cc/release/nssm-2.24.zip"
+$DIST_URL    = "https://thor.rfbitcoin.com/dist/thor-latest.zip"
+$NSSM_URL    = "https://nssm.cc/release/nssm-2.24.zip"
 $INSTALL_DIR = "C:\THOR"
 $SERVICE_NAME = "THOR"
 $PORT = 5000
 
 function Write-Step { param($msg) Write-Host "`n▶ $msg" -ForegroundColor Yellow }
 function Write-OK   { param($msg) Write-Host "  ✓ $msg" -ForegroundColor Green }
-function Write-Fail { param($msg) Write-Host "  ✗ $msg" -ForegroundColor Red; exit 1 }
+function Write-Fail { param($msg) Write-Host "`n  ✗ $msg" -ForegroundColor Red }
 
 Clear-Host
 Write-Host @"
@@ -36,27 +34,41 @@ if (-not $isAdmin) {
 Write-OK "Running as administrator"
 
 # ── Python check / install ────────────────────────────────────────────────────
-Write-Step "Checking Python 3.11+..."
+Write-Step "Checking Python 3.9+..."
 $python = $null
 foreach ($cmd in @("python", "python3", "py")) {
     try {
-        $ver = & $cmd -c "import sys; print(sys.version_info >= (3,11))" 2>$null
+        $ver = & $cmd -c "import sys; print(sys.version_info >= (3,9))" 2>$null
         if ($ver -eq "True") { $python = $cmd; break }
     } catch {}
 }
 
 if (-not $python) {
-    Write-Step "Installing Python 3.11 via winget..."
-    try {
-        winget install --id Python.Python.3.11 --silent --accept-package-agreements --accept-source-agreements
-        $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+    Write-Host "  Python 3.9+ not found. Attempting automatic install..." -ForegroundColor Cyan
+
+    # Try winget (available on Windows 10 1709+ with App Installer)
+    $wingetOk = $false
+    if (Get-Command winget -ErrorAction SilentlyContinue) {
+        foreach ($pyId in @("Python.Python.3.11", "Python.Python.3.10", "Python.Python.3.9")) {
+            Write-Host "  Trying winget: $pyId ..." -ForegroundColor Cyan
+            winget install --id $pyId --silent --accept-package-agreements --accept-source-agreements 2>&1
+            if ($LASTEXITCODE -eq 0) { $wingetOk = $true; break }
+        }
+    }
+
+    if ($wingetOk) {
+        # Refresh PATH
+        $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" +
+                    [System.Environment]::GetEnvironmentVariable("Path","User")
         $python = "python"
-        Write-OK "Python 3.11 installed"
-    } catch {
+        Write-OK "Python installed via winget"
+    } else {
+        Write-Fail "Could not auto-install Python."
         Write-Host ""
-        Write-Host "  Could not auto-install Python." -ForegroundColor Red
-        Write-Host "  Please install Python 3.11 from https://python.org/downloads/" -ForegroundColor Cyan
-        Write-Host "  Then re-run this installer." -ForegroundColor Cyan
+        Write-Host "  Please install Python 3.9 or later manually:" -ForegroundColor Cyan
+        Write-Host "  https://www.python.org/downloads/" -ForegroundColor Cyan
+        Write-Host "  Make sure to tick 'Add Python to PATH' during install." -ForegroundColor Cyan
+        Write-Host "  Then re-run THOR-Setup.exe." -ForegroundColor Cyan
         Read-Host "`nPress Enter to exit"
         exit 1
     }
@@ -67,7 +79,6 @@ Write-OK "Python: $pyver"
 # ── Create install directory ──────────────────────────────────────────────────
 Write-Step "Creating install directory..."
 if (Test-Path $INSTALL_DIR) {
-    # Stop existing service before overwriting
     try { Stop-Service $SERVICE_NAME -ErrorAction SilentlyContinue } catch {}
 }
 New-Item -ItemType Directory -Force -Path $INSTALL_DIR | Out-Null
@@ -76,9 +87,16 @@ Write-OK "Directory: $INSTALL_DIR"
 # ── Download THOR ─────────────────────────────────────────────────────────────
 Write-Step "Downloading THOR..."
 $zipPath = "$env:TEMP\thor-latest.zip"
-[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-Invoke-WebRequest -Uri $DIST_URL -OutFile $zipPath -UseBasicParsing
-Write-OK "Downloaded"
+try {
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+    Invoke-WebRequest -Uri $DIST_URL -OutFile $zipPath -UseBasicParsing
+    Write-OK "Downloaded"
+} catch {
+    Write-Fail "Download failed: $_"
+    Write-Host "  Check your internet connection and try again." -ForegroundColor Cyan
+    Read-Host "`nPress Enter to exit"
+    exit 1
+}
 
 # ── Extract ───────────────────────────────────────────────────────────────────
 Write-Step "Extracting..."
@@ -101,33 +119,41 @@ THOR_PORT=$PORT
 Write-OK "Config created at $envPath"
 
 # ── Python virtual environment ────────────────────────────────────────────────
-Write-Step "Setting up Python environment..."
-& $python -m venv "$INSTALL_DIR\venv"
-& "$INSTALL_DIR\venv\Scripts\pip.exe" install --quiet --upgrade pip
-& "$INSTALL_DIR\venv\Scripts\pip.exe" install --quiet -r "$INSTALL_DIR\requirements.txt"
-Write-OK "Dependencies installed"
+Write-Step "Setting up Python environment (this may take a few minutes)..."
+try {
+    & $python -m venv "$INSTALL_DIR\venv"
+    & "$INSTALL_DIR\venv\Scripts\pip.exe" install --quiet --upgrade pip
+    & "$INSTALL_DIR\venv\Scripts\pip.exe" install --quiet -r "$INSTALL_DIR\requirements.txt"
+    Write-OK "Dependencies installed"
+} catch {
+    Write-Fail "Failed to install Python dependencies: $_"
+    Read-Host "`nPress Enter to exit"
+    exit 1
+}
 
 # ── NSSM (service manager) ────────────────────────────────────────────────────
 Write-Step "Installing Windows service..."
 $nssmPath = "$INSTALL_DIR\tools\nssm.exe"
 if (-not (Test-Path $nssmPath)) {
-    $nssmZip = "$env:TEMP\nssm.zip"
-    Invoke-WebRequest -Uri $NSSM_URL -OutFile $nssmZip -UseBasicParsing
-    $nssmExtract = "$env:TEMP\nssm_extract"
-    Expand-Archive -LiteralPath $nssmZip -DestinationPath $nssmExtract -Force
-
-    New-Item -ItemType Directory -Force -Path "$INSTALL_DIR\tools" | Out-Null
-    # Pick correct architecture
-    $arch = if ([Environment]::Is64BitOperatingSystem) { "win64" } else { "win32" }
-    Copy-Item "$nssmExtract\nssm-2.24\$arch\nssm.exe" $nssmPath -Force
-    Remove-Item $nssmZip, $nssmExtract -Recurse -Force
+    try {
+        $nssmZip = "$env:TEMP\nssm.zip"
+        Invoke-WebRequest -Uri $NSSM_URL -OutFile $nssmZip -UseBasicParsing
+        $nssmExtract = "$env:TEMP\nssm_extract"
+        Expand-Archive -LiteralPath $nssmZip -DestinationPath $nssmExtract -Force
+        New-Item -ItemType Directory -Force -Path "$INSTALL_DIR\tools" | Out-Null
+        $arch = if ([Environment]::Is64BitOperatingSystem) { "win64" } else { "win32" }
+        Copy-Item "$nssmExtract\nssm-2.24\$arch\nssm.exe" $nssmPath -Force
+        Remove-Item $nssmZip, $nssmExtract -Recurse -Force
+    } catch {
+        Write-Fail "Could not download NSSM service manager: $_"
+        Read-Host "`nPress Enter to exit"
+        exit 1
+    }
 }
 
-# Remove old service if exists
 & $nssmPath stop $SERVICE_NAME 2>$null
 & $nssmPath remove $SERVICE_NAME confirm 2>$null
 
-# Register new service
 & $nssmPath install $SERVICE_NAME "$INSTALL_DIR\venv\Scripts\python.exe" "server.py"
 & $nssmPath set $SERVICE_NAME AppDirectory "$INSTALL_DIR\dashboard"
 & $nssmPath set $SERVICE_NAME AppStdout "$INSTALL_DIR\logs\thor.log"
@@ -140,22 +166,21 @@ New-Item -ItemType Directory -Force -Path "$INSTALL_DIR\logs" | Out-Null
 & $nssmPath start $SERVICE_NAME
 Write-OK "THOR service installed and started"
 
-# ── Start Menu shortcut ───────────────────────────────────────────────────────
+# ── Shortcuts ─────────────────────────────────────────────────────────────────
 Write-Step "Creating shortcuts..."
-$startMenu = [Environment]::GetFolderPath("CommonPrograms")
-$shortcutPath = "$startMenu\THOR Dashboard.lnk"
 $shell = New-Object -ComObject WScript.Shell
-$shortcut = $shell.CreateShortcut($shortcutPath)
-$shortcut.TargetPath = "http://localhost:$PORT"
-$shortcut.Description = "THOR Bitcoin Intelligence Dashboard"
-$shortcut.Save()
 
-# Desktop shortcut
+$startMenu = [Environment]::GetFolderPath("CommonPrograms")
+$sc1 = $shell.CreateShortcut("$startMenu\THOR Dashboard.lnk")
+$sc1.TargetPath = "http://localhost:$PORT"
+$sc1.Description = "THOR Bitcoin Intelligence Dashboard"
+$sc1.Save()
+
 $desktop = [Environment]::GetFolderPath("CommonDesktopDirectory")
-$dShortcut = $shell.CreateShortcut("$desktop\THOR Dashboard.lnk")
-$dShortcut.TargetPath = "http://localhost:$PORT"
-$dShortcut.Description = "THOR Bitcoin Intelligence Dashboard"
-$dShortcut.Save()
+$sc2 = $shell.CreateShortcut("$desktop\THOR Dashboard.lnk")
+$sc2.TargetPath = "http://localhost:$PORT"
+$sc2.Description = "THOR Bitcoin Intelligence Dashboard"
+$sc2.Save()
 Write-OK "Shortcuts created (Start Menu + Desktop)"
 
 # ── Open browser ──────────────────────────────────────────────────────────────

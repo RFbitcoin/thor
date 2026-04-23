@@ -32,28 +32,43 @@ if ! xcode-select -p &>/dev/null; then
   read -p "Press Enter when done..."
 fi
 
-# ── Homebrew ─────────────────────────────────────────────────────────────────
-if ! command -v brew &>/dev/null; then
-  step "Installing Homebrew (this may take a few minutes)..."
-  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-  # Add brew to PATH for Apple Silicon
-  eval "$(/opt/homebrew/bin/brew shellenv 2>/dev/null || /usr/local/bin/brew shellenv 2>/dev/null)"
-fi
-ok "Homebrew ready"
-
-# ── Python 3.11 ───────────────────────────────────────────────────────────────
+# ── Python 3.9+ — try system first, then Homebrew, then python.org ────────────
 PYTHON=""
-for cmd in python3.11 python3.12 python3; do
+for cmd in python3.11 python3.10 python3.9 python3; do
   if command -v "$cmd" &>/dev/null; then
-    ver=$("$cmd" -c "import sys; print(sys.version_info >= (3,11))")
+    ver=$("$cmd" -c "import sys; print(sys.version_info >= (3,9))" 2>/dev/null)
     if [[ "$ver" == "True" ]]; then PYTHON="$cmd"; break; fi
   fi
 done
 
 if [[ -z "$PYTHON" ]]; then
-  step "Installing Python 3.11..."
-  brew install python@3.11
-  PYTHON="python3.11"
+  # Try Homebrew
+  if ! command -v brew &>/dev/null; then
+    step "Installing Homebrew..."
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" || true
+    eval "$(/opt/homebrew/bin/brew shellenv 2>/dev/null)" || eval "$(/usr/local/bin/brew shellenv 2>/dev/null)" || true
+  fi
+
+  if command -v brew &>/dev/null; then
+    step "Installing Python via Homebrew..."
+    brew install python@3.11 2>/dev/null || brew install python@3.10 2>/dev/null || brew install python3 || true
+    for cmd in python3.11 python3.10 python3; do
+      if command -v "$cmd" &>/dev/null; then
+        ver=$("$cmd" -c "import sys; print(sys.version_info >= (3,9))" 2>/dev/null)
+        if [[ "$ver" == "True" ]]; then PYTHON="$cmd"; break; fi
+      fi
+    done
+  fi
+fi
+
+if [[ -z "$PYTHON" ]]; then
+  echo ""
+  echo "  Python 3.9+ not found and could not be installed automatically."
+  echo "  Please download and install Python from:"
+  echo "  https://www.python.org/downloads/macos/"
+  echo "  Then re-run this installer."
+  read -p "Press Enter to exit..."
+  exit 1
 fi
 ok "Python: $($PYTHON --version)"
 
