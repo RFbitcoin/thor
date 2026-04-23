@@ -1,0 +1,8 @@
+{
+  "enabled": true,
+  "budget_usdc": 500.0,
+  "buy_amount_usdc": 25.0,
+  "log": [
+    "[2026-04-18 13:02:24] DCA enabled \u2014 budget $500.0 / buy $25.0"
+  ]
+}

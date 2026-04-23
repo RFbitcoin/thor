@@ -1,0 +1,46 @@
+# Credentials — never commit these
+.env
+config/.env
+*.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+venv/
+.venv/
+
+# Logs & runtime state
+logs/
+*.log
+server.log
+
+# Live state files (personal data)
+trading/paper_state.json
+trading/gmx_state.json
+trading/trades.json
+trading/alerts.json
+dashboard/price_alerts.json
+dashboard/watchlist.json
+predictions/state*.json
+analytics/analytics.db
+
+# Build outputs
+dist/
+*.zip
+
+# Temp/backup files
+*.bak
+*.tmp
+*.backup
+
+# Docs/reports
+reports/
+*.pdf
+make_guide.py
+make_overview.py
+fix.py
+config.json
+THOR_Overview.md
+backtest/TODO*
+backtest/reports/

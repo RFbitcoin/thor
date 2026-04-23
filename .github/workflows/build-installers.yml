@@ -1,0 +1,131 @@
+name: Build Installers
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'dashboard/**'
+      - 'signals/**'
+      - 'trading/**'
+      - 'predictions/**'
+      - 'notifications/**'
+      - 'analytics/**'
+      - 'backtest/**'
+      - 'data/**'
+      - 'requirements.txt'
+      - 'installer/**'
+      - '.github/workflows/**'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g. 1.0.1)'
+        required: false
+        default: 'latest'
+
+jobs:
+  # ── Windows .exe ─────────────────────────────────────────────────────────────
+  build-windows:
+    name: Build Windows Installer
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Inno Setup
+        run: choco install innosetup --no-progress -y
+
+      - name: Inject .env template
+        run: |
+          Copy-Item installer\.env.template .env
+        shell: pwsh
+
+      - name: Build THOR-Setup.exe
+        run: |
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer\build_windows.iss
+        shell: pwsh
+
+      - name: Upload Windows installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: THOR-Setup-Windows
+          path: dist/THOR-Setup.exe
+          retention-days: 30
+
+  # ── macOS .pkg ───────────────────────────────────────────────────────────────
+  build-mac:
+    name: Build macOS Installer
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build THOR-Installer.pkg
+        run: bash installer/build_mac.sh
+
+      - name: Upload macOS installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: THOR-Installer-macOS
+          path: dist/THOR-Installer.pkg
+          retention-days: 30
+
+  # ── GitHub Release ────────────────────────────────────────────────────────────
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    needs: [build-windows, build-mac]
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download Windows artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: THOR-Setup-Windows
+          path: release/
+
+      - name: Download macOS artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: THOR-Installer-macOS
+          path: release/
+
+      - name: Copy Pi installer
+        run: cp installer/install_pi.sh release/
+
+      - name: Get version
+        id: version
+        run: |
+          V="${{ github.event.inputs.version }}"
+          if [[ -z "$V" || "$V" == "latest" ]]; then
+            V="$(date +'%Y.%m.%d')-$(git rev-parse --short HEAD)"
+          fi
+          echo "version=$V" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: THOR v${{ steps.version.outputs.version }}
+          body: |
+            ## THOR Bitcoin Intelligence Dashboard
+
+            ### Downloads
+            | Platform | File |
+            |---|---|
+            | Windows 10/11 | `THOR-Setup.exe` |
+            | macOS 12+ | `THOR-Installer.pkg` |
+            | Raspberry Pi / Linux | `install_pi.sh` |
+
+            **Installation:**
+            - Windows/Mac: Double-click the downloaded file
+            - Pi: `bash install_pi.sh`
+
+            ---
+            *Not financial advice. Past performance does not guarantee future results.*
+          files: |
+            release/THOR-Setup.exe
+            release/THOR-Installer.pkg
+            release/install_pi.sh
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

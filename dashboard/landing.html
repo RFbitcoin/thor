@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>THOR — Bitcoin Trading Intelligence Dashboard | thor.rfbitcoin.com</title>
+  <meta name="description" content="THOR is a self-hosted Bitcoin signal intelligence platform combining a 10-pillar composite score, ML-adaptive weights, walk-forward backtesting, and real-time macro analysis. Institutional-grade analytics at a retail price.">
+  <meta name="keywords" content="bitcoin trading signals canada, crypto analytics dashboard, algorithmic bitcoin trading, crypto conviction score, bitcoin signal intelligence, self-hosted crypto dashboard">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://thor.rfbitcoin.com/">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://thor.rfbitcoin.com/">
+  <meta property="og:title" content="THOR — Bitcoin Intelligence Dashboard">
+  <meta property="og:description" content="Know what the market is doing — and how confident to be about it. 10-pillar composite signal, ML-adaptive weights, walk-forward backtesting. Self-hosted on your Raspberry Pi.">
+  <meta property="og:site_name" content="THOR | RFBitcoin">
+
+  <!-- JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "THOR Trading Intelligence Dashboard",
+    "url": "https://thor.rfbitcoin.com",
+    "description": "Self-hosted Bitcoin signal intelligence platform with a 10-pillar composite score, ML-adaptive weights, and walk-forward backtesting.",
+    "applicationCategory": "FinanceApplication",
+    "operatingSystem": "Web",
+    "offers": [
+      { "@type": "Offer", "name": "Free", "price": "0", "priceCurrency": "USD" },
+      { "@type": "Offer", "name": "Pro", "price": "29", "priceCurrency": "USD" },
+      { "@type": "Offer", "name": "Elite", "price": "59", "priceCurrency": "USD" },
+      { "@type": "Offer", "name": "Elite+", "price": "99", "priceCurrency": "USD" }
+    ],
+    "author": { "@type": "Person", "name": "Renault Franklin", "url": "https://rfbitcoin.com" }
+  }
+  </script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --gold: #ffd700;
+      --gold-dim: rgba(255,215,0,0.15);
+      --bg: #0a0e27;
+      --bg2: #0c1030;
+      --text: #e0e0e0;
+      --muted: #888;
+      --border: rgba(255,215,0,0.12);
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 16px;
+      line-height: 1.7;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: rgba(8,10,24,0.95);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(8px);
+    }
+
+    .logo {
+      font-family: 'Courier New', monospace;
+      font-size: 1.4rem;
+      font-weight: 900;
+      color: var(--gold);
+      letter-spacing: 4px;
+      text-decoration: none;
+      text-shadow: 0 0 16px rgba(255,215,0,0.4);
+    }
+    .logo span { color: #e0e0e0; font-weight: 300; font-size: 0.72rem; letter-spacing: 2px; display: block; margin-top: 2px; }
+
+    nav { display: flex; align-items: center; gap: 8px; }
+    nav a {
+      color: var(--muted);
+      text-decoration: none;
+      padding: 6px 14px;
+      font-size: 0.88rem;
+      border-radius: 4px;
+      transition: color 0.2s, background 0.2s;
+    }
+    nav a:hover { color: var(--gold); }
+    nav .nav-cta {
+      background: var(--gold);
+      color: #0a0e27;
+      font-weight: 700;
+      margin-left: 8px;
+    }
+    nav .nav-cta:hover { background: #ffe633; color: #0a0e27; }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(135deg, #080b20 0%, #0e1035 60%, #0a0e27 100%);
+      padding: 88px 40px 72px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 70% 50% at 50% 0%, rgba(255,215,0,0.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-eyebrow {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.25em;
+      color: var(--gold);
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-family: 'Courier New', monospace;
+      font-size: clamp(2.2rem, 5vw, 3.4rem);
+      font-weight: 900;
+      color: var(--gold);
+      letter-spacing: 3px;
+      line-height: 1.1;
+      margin-bottom: 10px;
+      text-shadow: 0 0 40px rgba(255,215,0,0.25);
+    }
+
+    .hero-sub {
+      font-size: clamp(1rem, 2.5vw, 1.25rem);
+      color: #c0c0d0;
+      max-width: 620px;
+      margin: 0 auto 36px;
+      line-height: 1.65;
+    }
+
+    .hero-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+    .btn {
+      display: inline-block;
+      padding: 13px 32px;
+      border-radius: 5px;
+      font-weight: 700;
+      font-size: 0.92rem;
+      text-decoration: none;
+      transition: all 0.2s;
+      cursor: pointer;
+      border: none;
+    }
+    .btn-primary { background: var(--gold); color: #0a0e27; }
+    .btn-primary:hover { background: #ffe633; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(255,215,0,0.25); }
+    .btn-secondary { background: transparent; color: var(--gold); border: 1px solid rgba(255,215,0,0.4); }
+    .btn-secondary:hover { background: var(--gold-dim); }
+
+    .hero-stats {
+      display: flex;
+      gap: 32px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 52px;
+    }
+
+    .hstat {
+      border-left: 2px solid var(--gold);
+      padding-left: 16px;
+      text-align: left;
+    }
+    .hstat-val {
+      font-family: 'Courier New', monospace;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--gold);
+      line-height: 1;
+    }
+    .hstat-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      margin-top: 5px;
+    }
+
+    /* ── SECTIONS ── */
+    .section { padding: 72px 40px; max-width: 1000px; margin: 0 auto; }
+    .section-alt { background: rgba(255,255,255,0.02); }
+    .section-alt .section { max-width: 100%; padding: 72px calc(50% - 500px + 40px); }
+
+    h2 {
+      font-family: 'Courier New', monospace;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .section-intro {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 40px;
+      max-width: 580px;
+    }
+
+    /* ── CONVICTION BOX ── */
+    .conviction-box {
+      background: linear-gradient(135deg, rgba(255,215,0,0.07) 0%, rgba(255,215,0,0.02) 100%);
+      border: 1px solid rgba(255,215,0,0.25);
+      border-radius: 10px;
+      padding: 36px 40px;
+      display: flex;
+      align-items: center;
+      gap: 36px;
+      margin-bottom: 48px;
+    }
+    .conviction-score {
+      font-family: 'Courier New', monospace;
+      font-size: 4rem;
+      font-weight: 900;
+      color: var(--gold);
+      line-height: 1;
+      white-space: nowrap;
+      text-shadow: 0 0 20px rgba(255,215,0,0.3);
+    }
+    .conviction-desc { font-size: 0.92rem; color: #aaa; line-height: 1.7; }
+    .conviction-desc strong { color: var(--text); }
+
+    /* ── PILLARS ── */
+    .pillar-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 12px;
+    }
+    .pillar {
+      background: rgba(255,255,255,0.025);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 6px;
+      padding: 14px 18px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+    .pillar-n {
+      font-family: 'Courier New', monospace;
+      font-size: 0.68rem;
+      color: var(--gold);
+      font-weight: 700;
+      min-width: 24px;
+      padding-top: 3px;
+    }
+    .pillar p { font-size: 0.86rem; color: #aaa; margin: 0; }
+    .pillar strong { color: var(--text); }
+
+    /* ── FEATURES ── */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 14px;
+    }
+    .feature-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 22px;
+      transition: border-color 0.2s;
+    }
+    .feature-card:hover { border-color: rgba(255,215,0,0.3); }
+    .feature-icon { font-size: 1.4rem; margin-bottom: 10px; }
+    .feature-card h3 { font-size: 0.9rem; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+    .feature-card p { font-size: 0.83rem; color: var(--muted); margin: 0; line-height: 1.6; }
+
+    /* ── PRICING ── */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 16px;
+      align-items: start;
+    }
+    .price-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 28px 24px;
+      display: flex;
+      flex-direction: column;
+    }
+    .price-card.featured {
+      border-color: rgba(255,215,0,0.4);
+      background: rgba(255,215,0,0.04);
+    }
+    .price-badge {
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: #0a0e27;
+      background: var(--gold);
+      border-radius: 3px;
+      padding: 2px 8px;
+      display: inline-block;
+      margin-bottom: 14px;
+      align-self: flex-start;
+    }
+    .price-tier { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+    .price-amount {
+      font-family: 'Courier New', monospace;
+      font-size: 2.2rem;
+      font-weight: 900;
+      color: var(--gold);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .price-period { font-size: 0.8rem; color: var(--muted); margin-bottom: 20px; }
+    .price-features { list-style: none; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+    .price-features li { font-size: 0.84rem; color: #aaa; display: flex; gap: 8px; align-items: flex-start; }
+    .price-features li::before { content: '✓'; color: var(--gold); font-size: 0.8rem; margin-top: 2px; flex-shrink: 0; }
+    .price-features li.no::before { content: '–'; color: #444; }
+    .price-features li.no { color: #555; }
+    .price-cta {
+      display: block;
+      text-align: center;
+      margin-top: 24px;
+      padding: 10px;
+      border-radius: 5px;
+      font-weight: 700;
+      font-size: 0.88rem;
+      text-decoration: none;
+      background: var(--gold-dim);
+      color: var(--gold);
+      border: 1px solid rgba(255,215,0,0.25);
+      transition: all 0.2s;
+    }
+    .price-cta:hover { background: rgba(255,215,0,0.2); }
+    .price-card.featured .price-cta {
+      background: var(--gold);
+      color: #0a0e27;
+      border-color: var(--gold);
+    }
+    .price-card.featured .price-cta:hover { background: #ffe633; }
+
+    /* ── SELF-HOSTED CALLOUT ── */
+    .callout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: center;
+    }
+    .callout-text h2 { margin-bottom: 16px; }
+    .callout-text p { color: #aaa; margin-bottom: 14px; font-size: 0.95rem; }
+    .callout-code {
+      background: #070920;
+      border: 1px solid rgba(255,215,0,0.15);
+      border-radius: 8px;
+      padding: 28px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.82rem;
+      color: #b0ffb0;
+      line-height: 1.8;
+    }
+    .callout-code .comment { color: #555; }
+    .callout-code .cmd { color: var(--gold); }
+
+    /* ── DISCLAIMER ── */
+    .disclaimer-bar {
+      background: rgba(255,255,255,0.025);
+      border-top: 1px solid rgba(255,255,255,0.06);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      padding: 20px 40px;
+      text-align: center;
+    }
+    .disclaimer-bar p {
+      font-size: 0.78rem;
+      color: #555;
+      max-width: 800px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      padding: 32px 40px;
+      text-align: center;
+      font-size: 0.8rem;
+      color: #444;
+    }
+    footer a { color: #666; text-decoration: none; }
+    footer a:hover { color: var(--gold); }
+    footer .footer-links { display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; margin-bottom: 16px; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 700px) {
+      header { padding: 14px 20px; }
+      .hero { padding: 60px 20px 52px; }
+      .section { padding: 52px 20px; }
+      .conviction-box { flex-direction: column; gap: 20px; padding: 24px; }
+      .conviction-score { font-size: 3rem; }
+      .callout { grid-template-columns: 1fr; }
+      .disclaimer-bar { padding: 20px; }
+      footer { padding: 24px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header>
+  <a href="/" class="logo">⚡ THOR<span>Bitcoin Intelligence Dashboard</span></a>
+  <nav>
+    <a href="/about">About</a>
+    <a href="https://rfbitcoin.com">RFBitcoin.com</a>
+    <a href="/dashboard" class="nav-cta">Open Dashboard</a>
+  </nav>
+</header>
+
+<!-- ── HERO ── -->
+<div class="hero">
+  <div class="hero-eyebrow">Signal Intelligence Platform — Self-Hosted on Raspberry Pi</div>
+  <h1>⚡ THOR</h1>
+  <p class="hero-sub">
+    Know what the Bitcoin market is doing — and exactly how confident to be about it.
+    A 10-pillar composite signal with machine learning–adaptive weights,
+    walk-forward backtesting, and institutional-grade analytics. On your hardware. Under your control.
+  </p>
+  <div class="hero-btns">
+    <a href="#pricing" class="btn btn-primary">See Pricing</a>
+    <a href="/about" class="btn btn-secondary">How It Works</a>
+  </div>
+  <div class="hero-stats">
+    <div class="hstat">
+      <div class="hstat-val">10</div>
+      <div class="hstat-label">Signal Pillars</div>
+    </div>
+    <div class="hstat">
+      <div class="hstat-val">ML</div>
+      <div class="hstat-label">Adaptive Weights</div>
+    </div>
+    <div class="hstat">
+      <div class="hstat-val">0%</div>
+      <div class="hstat-label">Cloud Dependency</div>
+    </div>
+    <div class="hstat">
+      <div class="hstat-val">Real-Time</div>
+      <div class="hstat-label">Price &amp; Macro Data</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── CONVICTION SCORE ── -->
+<div style="background: rgba(255,255,255,0.015); border-top:1px solid var(--border); border-bottom:1px solid var(--border);">
+  <div class="section">
+    <h2>The Conviction Score</h2>
+    <p class="section-intro">The single most important number THOR produces. Not just a signal — a measure of how much the market agrees with itself.</p>
+    <div class="conviction-box">
+      <div class="conviction-score">78%</div>
+      <div class="conviction-desc">
+        <strong>High conviction — 8 of 10 pillars aligned bullish.</strong><br><br>
+        The Conviction Score tells you how strongly the 10 independent market pillars agree on a direction.
+        A score of 25% means weak consensus — noise. A score of 78% means the technical, macro, on-chain,
+        and sentiment signals are all pointing the same way simultaneously. That's a different class of signal entirely.
+        <br><br>
+        <strong>No other retail platform offers a quantified consensus score across this many independent data sources.</strong>
+      </div>
+    </div>
+
+    <!-- Pillars -->
+    <div class="pillar-grid">
+      <div class="pillar"><span class="pillar-n">01</span><p><strong>Technical Analysis</strong> — RSI momentum, EMA alignment, Golden/Death Cross detection across multiple timeframes.</p></div>
+      <div class="pillar"><span class="pillar-n">02</span><p><strong>Derivatives &amp; Funding</strong> — Perpetual futures funding rate, open interest trend, long/short ratio.</p></div>
+      <div class="pillar"><span class="pillar-n">03</span><p><strong>Macro Environment</strong> — VIX fear index, US Dollar Index (DXY), M2 money supply trend.</p></div>
+      <div class="pillar"><span class="pillar-n">04</span><p><strong>Sentiment</strong> — Fear &amp; Greed Index, social signal momentum, market mood composite.</p></div>
+      <div class="pillar"><span class="pillar-n">05</span><p><strong>VIX Regime</strong> — Cross-asset volatility context; elevated VIX suppresses conviction scores.</p></div>
+      <div class="pillar"><span class="pillar-n">06</span><p><strong>Volume Profile</strong> — Volume vs. 30-day average; accumulation vs. distribution pattern detection.</p></div>
+      <div class="pillar"><span class="pillar-n">07</span><p><strong>BTC Dominance</strong> — Bitcoin's share of total crypto market cap as a risk-on/risk-off signal.</p></div>
+      <div class="pillar"><span class="pillar-n">08</span><p><strong>RSI Divergence</strong> — Bullish and bearish divergence detection between price action and momentum.</p></div>
+      <div class="pillar"><span class="pillar-n">09</span><p><strong>200 EMA</strong> — Price relationship to the 200-day exponential moving average, the primary long-term trend filter.</p></div>
+      <div class="pillar"><span class="pillar-n">10</span><p><strong>Volatility Regime</strong> — ATR percentile analysis. Signals above the 85th percentile block entries entirely.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── FEATURES ── -->
+<div class="section">
+  <h2>Platform Features</h2>
+  <p class="section-intro">A full analytical workstation — not another indicator dashboard.</p>
+  <div class="feature-grid">
+    <div class="feature-card">
+      <div class="feature-icon">🧠</div>
+      <h3>ML-Adaptive Pillar Weights</h3>
+      <p>Pillar weights are recalculated via logistic regression on each backtest window. THOR adapts to changing market regimes automatically.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔬</div>
+      <h3>Walk-Forward Backtesting</h3>
+      <p>Trains on one data window, evaluates on the next unseen window. The institutional standard for preventing overfitting — rare in retail tools.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📰</div>
+      <h3>NLP News Sentiment</h3>
+      <p>Local VADER sentiment scoring on live headlines from CoinDesk, Cointelegraph, Bitcoin Magazine, and Reuters. Integrated into the 24h prediction model.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📊</div>
+      <h3>Per-Pillar Accuracy Analytics</h3>
+      <p>30-day and 90-day rolling directional accuracy tracked for every pillar independently. Full transparency — no black box.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🧪</div>
+      <h3>Paper Trading Simulator</h3>
+      <p>Full paper portfolio with trailing stop tracking, circuit breakers, and session performance analytics. Test before you trade.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">💹</div>
+      <h3>Kraken Live Integration</h3>
+      <p>Connect your Kraken API key and place market and limit orders from the dashboard. Your keys stay on your hardware.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔔</div>
+      <h3>Price &amp; Signal Alerts</h3>
+      <p>Telegram notifications on signal regime changes, high-conviction thresholds, and price alert triggers. Watchdog daemon monitors platform health.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🌐</div>
+      <h3>Multi-Asset Coverage</h3>
+      <p>Full 10-pillar analysis runs independently for BTC, ETH, SOL, and XRP. Watchlist with live prices and 24h changes.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📱</div>
+      <h3>Progressive Web App</h3>
+      <p>Installable on mobile and desktop. Works offline with cached signal data. No app store required.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── SELF-HOSTED ── -->
+<div class="section-alt">
+  <div class="section">
+    <div class="callout">
+      <div class="callout-text">
+        <h2>Your Hardware. Your Keys. Your Data.</h2>
+        <p>
+          THOR runs entirely on a Raspberry Pi 5 you own. No cloud subscription, no third-party custody of your API keys,
+          no exchange credentials leaving your local network.
+        </p>
+        <p>
+          After FTX and Celsius, self-custody isn't a niche preference — it's the obvious choice.
+          THOR's architecture was built from the ground up around this principle.
+        </p>
+        <p>
+          The platform is served via Cloudflare Tunnel so you can access it anywhere, but the data,
+          the keys, and the signal engine stay on your own hardware at all times.
+        </p>
+      </div>
+      <div class="callout-code">
+        <span class="comment"># What runs on your Pi</span><br>
+        <span class="cmd">thor/</span><br>
+        &nbsp; signals/aggregator.py<br>
+        &nbsp; predictions/predictor.py<br>
+        &nbsp; trading/paper.py<br>
+        &nbsp; notifications/watchdog.py<br>
+        &nbsp; dashboard/server.py<br><br>
+        <span class="comment"># What leaves your network</span><br>
+        <span class="cmd">nothing sensitive.</span><br>
+        <span class="comment"># API keys stay local.</span><br>
+        <span class="comment"># Signals computed locally.</span><br>
+        <span class="comment"># Your data stays yours.</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── DOWNLOAD ── -->
+<div style="background:linear-gradient(135deg,rgba(255,215,0,0.06) 0%,rgba(255,215,0,0.02) 100%); border-top:1px solid rgba(255,215,0,0.15); border-bottom:1px solid rgba(255,215,0,0.15);">
+<div class="section" id="download" style="max-width:1000px; margin:0 auto;">
+  <h2>Download &amp; Install</h2>
+  <p class="section-intro">One click. THOR installs itself and opens in your browser. No technical setup required.</p>
+  <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:16px; margin-top:8px;">
+
+    <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:10px; padding:28px 24px; text-align:center;">
+      <div style="font-size:2.5rem; margin-bottom:12px;">🪟</div>
+      <div style="font-size:1rem; font-weight:700; color:var(--text); margin-bottom:6px;">Windows</div>
+      <div style="font-size:0.8rem; color:var(--muted); margin-bottom:20px;">Windows 10 / 11 · 64-bit</div>
+      <a href="/dist/THOR-Setup.exe" download class="btn btn-primary" style="display:block; text-align:center;">Download .exe</a>
+      <div style="font-size:0.72rem; color:#555; margin-top:10px;">Double-click to install · ~50MB</div>
+    </div>
+
+    <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:10px; padding:28px 24px; text-align:center;">
+      <div style="font-size:2.5rem; margin-bottom:12px;">🍎</div>
+      <div style="font-size:1rem; font-weight:700; color:var(--text); margin-bottom:6px;">macOS</div>
+      <div style="font-size:0.8rem; color:var(--muted); margin-bottom:20px;">macOS 12 Monterey or later</div>
+      <a href="/dist/THOR-Installer.pkg" download class="btn btn-primary" style="display:block; text-align:center;">Download .pkg</a>
+      <div style="font-size:0.72rem; color:#555; margin-top:10px;">Double-click to install · ~50MB</div>
+    </div>
+
+    <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:10px; padding:28px 24px; text-align:center;">
+      <div style="font-size:2.5rem; margin-bottom:12px;">🥧</div>
+      <div style="font-size:1rem; font-weight:700; color:var(--text); margin-bottom:6px;">Raspberry Pi</div>
+      <div style="font-size:0.8rem; color:var(--muted); margin-bottom:20px;">Pi 4 / Pi 5 · Raspberry Pi OS</div>
+      <a href="/dist/install_pi.sh" download class="btn btn-primary" style="display:block; text-align:center;">Download Installer</a>
+      <div style="font-size:0.72rem; color:#555; margin-top:10px;">Run in terminal: bash install_pi.sh</div>
+    </div>
+
+  </div>
+  <p style="font-size:0.78rem; color:#555; text-align:center; margin-top:20px;">
+    Requires an active THOR subscription. <a href="#pricing" style="color:#888;">See pricing below.</a>
+    All platforms: THOR runs locally on your hardware — no cloud, no third-party access to your data.
+  </p>
+</div>
+</div>
+
+<!-- ── PRICING ── -->
+<div class="section" id="pricing">
+  <h2>Pricing</h2>
+  <p class="section-intro">Start free. Upgrade when you need more depth. Annual billing saves two months.</p>
+  <div class="pricing-grid">
+
+    <!-- Free -->
+    <div class="price-card">
+      <div class="price-tier">Free</div>
+      <div class="price-amount">$0</div>
+      <div class="price-period">forever</div>
+      <ul class="price-features">
+        <li>BTC signals (4-hour delay)</li>
+        <li>Signal summary (no pillar breakdown)</li>
+        <li>Paper trading (demo mode)</li>
+        <li class="no">Multi-asset coverage</li>
+        <li class="no">Telegram alerts</li>
+        <li class="no">Backtesting engine</li>
+        <li class="no">Prediction model</li>
+      </ul>
+      <a href="/dashboard" class="price-cta">Get Started</a>
+    </div>
+
+    <!-- Pro -->
+    <div class="price-card">
+      <div class="price-tier">Pro</div>
+      <div class="price-amount">$29</div>
+      <div class="price-period">per month · or $290/yr</div>
+      <ul class="price-features">
+        <li>Real-time signals (all assets)</li>
+        <li>Full 10-pillar signal breakdown</li>
+        <li>Multi-asset: BTC, ETH, SOL, XRP</li>
+        <li>Full paper trading suite</li>
+        <li>Telegram alerts</li>
+        <li>DCA accumulation tracker</li>
+        <li class="no">Backtesting engine</li>
+        <li class="no">Prediction model</li>
+      </ul>
+      <a href="/dashboard" class="price-cta">Request Access</a>
+    </div>
+
+    <!-- Elite -->
+    <div class="price-card featured">
+      <div class="price-badge">Most Popular</div>
+      <div class="price-tier">Elite</div>
+      <div class="price-amount">$59</div>
+      <div class="price-period">per month · or $590/yr</div>
+      <ul class="price-features">
+        <li>Everything in Pro</li>
+        <li>Walk-forward backtesting engine</li>
+        <li>24h prediction model (NLP + signals)</li>
+        <li>Per-pillar accuracy analytics</li>
+        <li>Kraken live trading integration</li>
+        <li>Signal performance reports</li>
+      </ul>
+      <a href="/dashboard" class="price-cta">Request Access</a>
+    </div>
+
+    <!-- Elite+ -->
+    <div class="price-card">
+      <div class="price-tier">Elite+</div>
+      <div class="price-amount">$99</div>
+      <div class="price-period">per month · or $990/yr</div>
+      <ul class="price-features">
+        <li>Everything in Elite</li>
+        <li>Open-source TradingExecutor download</li>
+        <li>Connect Thor signals to GMX on your own Pi</li>
+        <li>Watchdog failsafe daemon</li>
+        <li>Priority support</li>
+      </ul>
+      <a href="/dashboard" class="price-cta">Request Access</a>
+    </div>
+
+  </div>
+  <p style="font-size:0.78rem; color:#555; text-align:center; margin-top:24px;">
+    The open-source TradingExecutor module (Elite+) is software you run on your own hardware.
+    THOR does not execute trades on your behalf or hold your funds.
+  </p>
+</div>
+
+<!-- ── DISCLAIMER ── -->
+<div class="disclaimer-bar">
+  <p>
+    <strong style="color:#666;">Important Disclaimer:</strong>
+    THOR provides market intelligence and signal analysis for informational purposes only.
+    Nothing on this platform constitutes financial advice, investment recommendations, or an offer to buy or sell
+    any security or cryptocurrency. Past signal performance does not guarantee future results.
+    Trading cryptocurrencies involves significant risk of loss.
+    Always conduct your own research and consult a qualified financial advisor before making investment decisions.
+  </p>
+</div>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-links">
+    <a href="/">Home</a>
+    <a href="/about">About</a>
+    <a href="/dashboard">Dashboard</a>
+    <a href="https://rfbitcoin.com">RFBitcoin.com</a>
+  </div>
+  <p>&copy; 2026 Renault Franklin &nbsp;·&nbsp; THOR Bitcoin Intelligence Dashboard &nbsp;·&nbsp; thor.rfbitcoin.com</p>
+  <p style="margin-top:8px;">Thunder Bay, Ontario, Canada</p>
+</footer>
+
+</body>
+</html>

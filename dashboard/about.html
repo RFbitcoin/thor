@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About THOR — Bitcoin Trading Dashboard | RFBitcoin</title>
+  <meta name="description" content="THOR is a professional Bitcoin trading dashboard with a 35-point signal scoring system, real-time macro analysis, on-chain metrics, paper trading, and live Kraken exchange integration.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://thor.rfbitcoin.com/about">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://thor.rfbitcoin.com/about">
+  <meta property="og:title" content="About THOR — Bitcoin Trading Dashboard">
+  <meta property="og:description" content="THOR is a professional Bitcoin trading dashboard with a 35-point signal scoring system, real-time macro analysis, on-chain metrics, paper trading, and live Kraken exchange integration.">
+  <meta property="og:site_name" content="THOR | RFBitcoin">
+
+  <!-- JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "THOR Trading Dashboard",
+    "url": "https://thor.rfbitcoin.com",
+    "description": "Professional Bitcoin trading dashboard with a 35-point signal scoring system combining technical indicators, macro economic data, on-chain metrics, and volatility regime analysis.",
+    "applicationCategory": "FinanceApplication",
+    "operatingSystem": "Web",
+    "author": {
+      "@type": "Organization",
+      "name": "RFBitcoin",
+      "url": "https://rfbitcoin.com"
+    }
+  }
+  </script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0a0e27;
+      color: #e0e0e0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 16px;
+      line-height: 1.7;
+    }
+
+    header {
+      background: linear-gradient(180deg, #080a18 0%, #0c0e20 100%);
+      border-bottom: 1px solid rgba(255,215,0,0.2);
+      padding: 18px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      font-family: 'Courier New', monospace;
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: #ffd700;
+      letter-spacing: 4px;
+      text-decoration: none;
+      text-shadow: 0 0 16px rgba(255,215,0,0.4);
+    }
+
+    .logo span { color: #e0e0e0; font-weight: 300; font-size: 0.75rem; letter-spacing: 2px; display: block; }
+
+    nav a {
+      color: #aaa;
+      text-decoration: none;
+      margin-left: 24px;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+    nav a:hover { color: #ffd700; }
+    nav a.active { color: #ffd700; }
+
+    .hero {
+      background: linear-gradient(135deg, #0a0e27 0%, #12132a 100%);
+      padding: 64px 40px 48px;
+      border-bottom: 1px solid rgba(255,215,0,0.1);
+    }
+
+    .hero-inner { max-width: 800px; margin: 0 auto; }
+
+    .eyebrow {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: #ffd700;
+      margin-bottom: 14px;
+    }
+
+    h1 {
+      font-size: 2.4rem;
+      font-weight: 900;
+      font-family: 'Courier New', monospace;
+      color: #ffd700;
+      letter-spacing: 2px;
+      line-height: 1.1;
+      margin-bottom: 16px;
+      text-shadow: 0 0 30px rgba(255,215,0,0.2);
+    }
+
+    .hero-desc {
+      font-size: 1.05rem;
+      color: #b0b0c0;
+      max-width: 640px;
+      line-height: 1.75;
+    }
+
+    .stats-row {
+      display: flex;
+      gap: 32px;
+      margin-top: 36px;
+      flex-wrap: wrap;
+    }
+
+    .stat {
+      border-left: 2px solid #ffd700;
+      padding-left: 14px;
+    }
+
+    .stat-val {
+      font-family: 'Courier New', monospace;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #ffd700;
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #888;
+      margin-top: 4px;
+    }
+
+    main { max-width: 900px; margin: 0 auto; padding: 56px 40px; }
+
+    section { margin-bottom: 52px; }
+
+    h2 {
+      font-family: 'Courier New', monospace;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #ffd700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255,215,0,0.15);
+    }
+
+    p { color: #b0b0c0; margin-bottom: 14px; }
+    p strong { color: #e0e0e0; }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+      margin-top: 8px;
+    }
+
+    .feature-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,215,0,0.12);
+      border-radius: 6px;
+      padding: 20px;
+      transition: border-color 0.2s;
+    }
+
+    .feature-card:hover { border-color: rgba(255,215,0,0.3); }
+
+    .feature-icon {
+      font-size: 1.4rem;
+      margin-bottom: 10px;
+    }
+
+    .feature-card h3 {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #e0e0e0;
+      margin-bottom: 6px;
+    }
+
+    .feature-card p {
+      font-size: 0.85rem;
+      color: #888;
+      margin: 0;
+      line-height: 1.6;
+    }
+
+    .pillar-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .pillar-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 5px;
+      padding: 12px 16px;
+    }
+
+    .pillar-num {
+      font-family: 'Courier New', monospace;
+      font-size: 0.7rem;
+      color: #ffd700;
+      font-weight: 700;
+      min-width: 28px;
+      padding-top: 2px;
+    }
+
+    .pillar-list li p {
+      margin: 0;
+      font-size: 0.88rem;
+      color: #aaa;
+    }
+
+    .pillar-list li strong { color: #e0e0e0; }
+
+    .score-box {
+      background: rgba(255,215,0,0.05);
+      border: 1px solid rgba(255,215,0,0.2);
+      border-radius: 6px;
+      padding: 20px 24px;
+      margin: 16px 0;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .score-val {
+      font-family: 'Courier New', monospace;
+      font-size: 2.5rem;
+      font-weight: 900;
+      color: #ffd700;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .score-desc { font-size: 0.88rem; color: #aaa; line-height: 1.65; }
+    .score-desc strong { color: #e0e0e0; }
+
+    .cta-block {
+      background: linear-gradient(135deg, rgba(255,215,0,0.06) 0%, rgba(255,215,0,0.02) 100%);
+      border: 1px solid rgba(255,215,0,0.2);
+      border-radius: 8px;
+      padding: 32px;
+      text-align: center;
+      margin-top: 48px;
+    }
+
+    .cta-block h2 { border: none; margin-bottom: 12px; }
+    .cta-block p { max-width: 520px; margin: 0 auto 24px; color: #aaa; }
+
+    .btn {
+      display: inline-block;
+      background: #ffd700;
+      color: #0a0e27;
+      font-weight: 700;
+      font-size: 0.9rem;
+      padding: 12px 28px;
+      border-radius: 4px;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.15s;
+      margin: 0 6px;
+    }
+
+    .btn:hover { background: #ffe633; transform: translateY(-1px); }
+
+    .btn-outline {
+      background: transparent;
+      color: #ffd700;
+      border: 1px solid rgba(255,215,0,0.4);
+    }
+
+    .btn-outline:hover { background: rgba(255,215,0,0.06); }
+
+    footer {
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding: 24px 40px;
+      text-align: center;
+      font-size: 0.8rem;
+      color: #555;
+    }
+
+    footer a { color: #888; text-decoration: none; }
+    footer a:hover { color: #ffd700; }
+
+    @media (max-width: 640px) {
+      header { padding: 16px 20px; }
+      .hero { padding: 40px 20px 36px; }
+      h1 { font-size: 1.8rem; }
+      main { padding: 40px 20px; }
+      .stats-row { gap: 20px; }
+      .score-box { flex-direction: column; gap: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <a href="/" class="logo">⚡ THOR<span>Bitcoin Trading Dashboard</span></a>
+  <nav>
+    <a href="/dashboard">Dashboard</a>
+    <a href="/about" class="active">About</a>
+    <a href="https://rfbitcoin.com">RFBitcoin.com</a>
+  </nav>
+</header>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow">Professional Bitcoin Analytics</div>
+    <h1>THOR Trading Dashboard</h1>
+    <p class="hero-desc">
+      THOR is a professional-grade Bitcoin and cryptocurrency trading dashboard that aggregates technical indicators,
+      macroeconomic data, on-chain metrics, and volatility analysis into a single 35-point scoring system —
+      giving traders a clear, data-driven signal on market conditions.
+    </p>
+    <div class="stats-row">
+      <div class="stat">
+        <div class="stat-val">35</div>
+        <div class="stat-label">Signal Score Points</div>
+      </div>
+      <div class="stat">
+        <div class="stat-val">11</div>
+        <div class="stat-label">Signal Pillars</div>
+      </div>
+      <div class="stat">
+        <div class="stat-val">Real-Time</div>
+        <div class="stat-label">Price & Macro Data</div>
+      </div>
+      <div class="stat">
+        <div class="stat-val">Kraken</div>
+        <div class="stat-label">Live Exchange Integration</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<main>
+
+  <!-- WHAT IS THOR -->
+  <section>
+    <h2>What Is THOR?</h2>
+    <p>
+      THOR is a self-hosted Bitcoin trading intelligence platform designed for serious retail traders
+      who want institutional-quality signal analysis without the institutional price tag.
+      Built on Python and Flask, it runs continuously and aggregates data from multiple sources
+      into a single, actionable dashboard.
+    </p>
+    <p>
+      The name THOR reflects the platform's approach: decisive, data-driven, and built to cut through
+      market noise. Rather than offering hundreds of overlapping indicators, THOR consolidates
+      the signals that consistently matter into one <strong>35-point composite score</strong> that
+      tells you whether conditions favour buying, holding, or stepping aside.
+    </p>
+    <p>
+      THOR integrates directly with <strong>Kraken</strong> for live trading, includes a full
+      paper trading simulator for strategy testing, and monitors macro conditions — VIX, the US Dollar Index,
+      M2 money supply — alongside on-chain Bitcoin metrics in real time.
+    </p>
+  </section>
+
+  <!-- THE SIGNAL SYSTEM -->
+  <section>
+    <h2>The 35-Point Signal System</h2>
+    <p>
+      THOR's core is a composite scoring engine that evaluates Bitcoin market conditions across
+      eleven independent pillars. Each pillar is scored independently and combined into a single
+      35-point score. Scores above 20 indicate bullish conditions; scores above 28 indicate
+      strong buy conditions; scores below 12 suggest caution or avoidance.
+    </p>
+
+    <div class="score-box">
+      <div class="score-val">35 pts</div>
+      <div class="score-desc">
+        <strong>Maximum composite signal score.</strong> The system evaluates eleven independent
+        market pillars — technical momentum, macro conditions, on-chain health, volatility regime,
+        and more — weighting each based on historical significance. No single indicator can
+        produce a false signal alone.
+      </div>
+    </div>
+
+    <ul class="pillar-list">
+      <li>
+        <span class="pillar-num">01</span>
+        <p><strong>RSI Momentum</strong> — 14-period Relative Strength Index measuring overbought and oversold conditions across multiple timeframes.</p>
+      </li>
+      <li>
+        <span class="pillar-num">02</span>
+        <p><strong>Moving Average Trend</strong> — 50/200 EMA alignment, Golden Cross and Death Cross detection, price-to-MA relationship scoring.</p>
+      </li>
+      <li>
+        <span class="pillar-num">03</span>
+        <p><strong>Macro Environment</strong> — VIX fear index, US Dollar Index (DXY), and M2 money supply trend analysis for macro tailwinds and headwinds.</p>
+      </li>
+      <li>
+        <span class="pillar-num">04</span>
+        <p><strong>BTC Dominance</strong> — Bitcoin's share of total crypto market cap as a signal for risk-on vs. risk-off capital rotation.</p>
+      </li>
+      <li>
+        <span class="pillar-num">05</span>
+        <p><strong>Network Health</strong> — Hash rate trend, mempool congestion, fee pressure, and transaction volume as on-chain demand signals.</p>
+      </li>
+      <li>
+        <span class="pillar-num">06</span>
+        <p><strong>Market Structure</strong> — Higher highs / lower lows pattern detection, support and resistance level proximity scoring.</p>
+      </li>
+      <li>
+        <span class="pillar-num">07</span>
+        <p><strong>Volume Profile</strong> — Volume relative to 20-day average, accumulation vs. distribution pattern detection.</p>
+      </li>
+      <li>
+        <span class="pillar-num">08</span>
+        <p><strong>Fear &amp; Greed</strong> — Composite sentiment analysis incorporating social signals, search trends, and market momentum.</p>
+      </li>
+      <li>
+        <span class="pillar-num">09</span>
+        <p><strong>Price Momentum</strong> — Short-term and medium-term rate of change, comparing current momentum to historical percentiles.</p>
+      </li>
+      <li>
+        <span class="pillar-num">10</span>
+        <p><strong>AI Prediction</strong> — Machine learning price trend classification using historical OHLCV patterns.</p>
+      </li>
+      <li>
+        <span class="pillar-num">11</span>
+        <p><strong>Volatility Regime</strong> — ATR percentile analysis classifying current market volatility as low, normal, or elevated. High volatility above the 85th percentile blocks buy signals entirely.</p>
+      </li>
+    </ul>
+  </section>
+
+  <!-- FEATURES -->
+  <section>
+    <h2>Platform Features</h2>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <h3>Real-Time Dashboard</h3>
+        <p>Live price feeds, signal scores, and market data updated every 30 seconds. Supports BTC, ETH, and additional assets.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📈</div>
+        <h3>Interactive Charts</h3>
+        <p>OHLCV candlestick charts with volume overlay, moving averages, and signal markers plotted directly on price history.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🧪</div>
+        <h3>Paper Trading Simulator</h3>
+        <p>Full-featured virtual trading environment. Test strategies with simulated capital before committing real funds.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3>Live Kraken Integration</h3>
+        <p>Connect your Kraken API key and place real market and limit orders directly from the THOR dashboard.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔁</div>
+        <h3>Backtesting Engine</h3>
+        <p>Run the 35-point scoring system against historical price data to validate strategy performance before going live.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💰</div>
+        <h3>DCA Tracker</h3>
+        <p>Dollar-cost averaging strategy manager. Track recurring buy schedules, average cost basis, and portfolio growth over time.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🌐</div>
+        <h3>Macro Analysis</h3>
+        <p>Real-time tracking of VIX, DXY, M2 money supply, and global market cap — the macro forces that drive Bitcoin cycles.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔔</div>
+        <h3>Signal Alerts</h3>
+        <p>Automated detection of significant signal changes with Telegram notification delivery for high-priority events.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📱</div>
+        <h3>Progressive Web App</h3>
+        <p>Installable as a PWA on mobile and desktop. Works offline with cached data for monitoring on the go.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- TECHNOLOGY -->
+  <section>
+    <h2>Technology</h2>
+    <p>
+      THOR is built on <strong>Python 3.11</strong> and <strong>Flask</strong>, running on a
+      Raspberry Pi 5 served via Cloudflare Tunnel. The signal engine runs continuously,
+      caching API responses to minimize external calls while keeping data fresh.
+    </p>
+    <p>
+      Data sources include <strong>CoinGecko</strong> for global market data and price history,
+      <strong>Kraken</strong> and <strong>Binance</strong> for live price feeds and trading,
+      <strong>FRED</strong> (Federal Reserve Economic Data) for macro indicators,
+      and on-chain data for Bitcoin network metrics.
+    </p>
+    <p>
+      The platform is designed as a <strong>Progressive Web App (PWA)</strong> — it can be
+      installed on any device and provides offline access to cached signal data.
+      All trading activity goes through regulated exchanges; THOR never holds user funds.
+    </p>
+  </section>
+
+  <!-- CTA -->
+  <div class="cta-block">
+    <h2>Access THOR</h2>
+    <p>THOR is a private platform. Access requires authentication. Visit RFBitcoin.com to learn more about Bitcoin and cryptocurrency.</p>
+    <a href="/dashboard" class="btn">Open Dashboard</a>
+    <a href="https://rfbitcoin.com" class="btn btn-outline">RFBitcoin.com</a>
+  </div>
+
+</main>
+
+<footer>
+  <p>
+    &copy; 2026 <a href="https://rfbitcoin.com">RFBitcoin</a> — THOR Trading Dashboard &nbsp;|&nbsp;
+    <a href="/dashboard">Dashboard</a> &nbsp;|&nbsp;
+    <a href="https://rfbitcoin.com/learn">Learn Bitcoin</a>
+  </p>
+</footer>
+
+</body>
+</html>

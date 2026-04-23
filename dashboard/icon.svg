@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Dark background -->
+  <rect width="512" height="512" fill="#0a0e27"/>
+  
+  <!-- Lightning bolt in orange/gold -->
+  <g transform="translate(256, 256)">
+    <!-- Lightning bolt shape -->
+    <path d="M 0 -180 L -80 -40 L -30 -40 L 80 180 L 0 40 L -50 40 Z" fill="#ffd700" stroke="#ffed4e" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>
+    
+    <!-- Glow effect -->
+    <path d="M 0 -180 L -80 -40 L -30 -40 L 80 180 L 0 40 L -50 40 Z" fill="none" stroke="#ffd700" stroke-width="4" opacity="0.5" stroke-linejoin="round" stroke-linecap="round" filter="blur(4px)"/>
+  </g>
+</svg>
