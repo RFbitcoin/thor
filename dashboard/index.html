@@ -2874,14 +2874,75 @@ body.light-theme #theme-btn          { color: #1a1a2e; }
                 const res  = await fetch('/api/auth/status');
                 const data = await res.json();
                 if (data.first_run) {
-                    // Block the UI until password is set
                     document.getElementById('setup-modal').style.display = 'flex';
                 } else if (authToken) {
-                    // Already logged in — show settings button
                     document.getElementById('settings-btn').style.display = '';
                 }
             } catch(e) { /* server not ready yet, ignore */ }
+
+            // ── License check ────────────────────────────────────────────────
+            try {
+                const lr = await fetch('/api/license/status');
+                const ld = await lr.json();
+                if (ld.status === 'required' || ld.status === 'invalid') {
+                    document.getElementById('license-modal').style.display = 'flex';
+                    if (ld.status === 'invalid') {
+                        document.getElementById('license-modal-msg').textContent =
+                            'Your license is no longer active. Enter a valid key to continue.';
+                    }
+                } else if (ld.status === 'grace') {
+                    showLicenseBanner('warning',
+                        `⚠ License server unreachable — grace period: ${ld.days_remaining || '?'} day(s) remaining. ` +
+                        `<a href="https://thor.rfbitcoin.com" target="_blank" style="color:#C9A84C;">Renew</a>`);
+                }
+            } catch(e) { /* license server not reachable, silent */ }
         });
+
+        function showLicenseBanner(type, html) {
+            const b = document.getElementById('license-banner');
+            b.innerHTML = html;
+            b.style.display = 'block';
+            b.style.background = type === 'warning' ? '#2a1a00' : '#0a2a0a';
+            b.style.borderColor = type === 'warning' ? '#C9A84C' : '#3fb950';
+        }
+
+        async function activateLicense() {
+            const key = document.getElementById('license-key-input').value.trim();
+            const btn = document.getElementById('license-activate-btn');
+            const err = document.getElementById('license-error');
+            if (!key) { err.textContent = 'Please enter your license key.'; return; }
+            btn.textContent = 'Activating…';
+            btn.disabled = true;
+            err.textContent = '';
+            try {
+                const r = await fetch('/api/license/activate', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({key})
+                });
+                const d = await r.json();
+                if (d.ok) {
+                    document.getElementById('license-modal').style.display = 'none';
+                    showLicenseBanner('success', '✓ License activated. Welcome to THOR.');
+                    setTimeout(() => { document.getElementById('license-banner').style.display = 'none'; }, 4000);
+                } else {
+                    err.textContent = d.error || 'Activation failed.';
+                    btn.textContent = 'Activate';
+                    btn.disabled = false;
+                }
+            } catch(e) {
+                err.textContent = 'Network error. Check your connection.';
+                btn.textContent = 'Activate';
+                btn.disabled = false;
+            }
+        }
+
+        function dismissLicenseModal() {
+            document.getElementById('license-modal').style.display = 'none';
+            showLicenseBanner('warning',
+                '⚠ No active license. <a href="https://thor.rfbitcoin.com#pricing" target="_blank" style="color:#C9A84C;">Subscribe</a> ' +
+                'or <a href="#" onclick="document.getElementById(\'license-modal\').style.display=\'flex\';return false;" style="color:#C9A84C;">enter key</a>.');
+        }
 
         // ── First-run setup ──────────────────────────────────────────────────
         async function handleSetup(event) {
@@ -5686,6 +5747,37 @@ body.light-theme #theme-btn          { color: #1a1a2e; }
             }, 60000);
         });
     </script>
+
+    <!-- License banner (shown for grace/no-license states) -->
+    <div id="license-banner" style="display:none; padding:10px 20px; text-align:center; font-size:0.82rem; border-bottom:1px solid; color:#ccc; position:sticky; top:0; z-index:900;"></div>
+
+    <!-- License activation modal -->
+    <div id="license-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.92); z-index:1001; align-items:center; justify-content:center;">
+      <div style="background:#111; border:1px solid #C9A84C; border-radius:8px; padding:2.5rem 2rem; max-width:420px; width:90%; text-align:center;">
+        <div style="font-size:2rem; margin-bottom:0.5rem;">⚡</div>
+        <h2 style="color:#C9A84C; font-size:1.2rem; margin-bottom:0.4rem;">Activate THOR</h2>
+        <p id="license-modal-msg" style="color:#888; font-size:0.85rem; line-height:1.6; margin-bottom:1.5rem;">
+          Enter your license key from your purchase confirmation email.
+        </p>
+        <input id="license-key-input" type="text" placeholder="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
+          style="width:100%; box-sizing:border-box; background:#0a0a0a; border:1px solid #333; border-radius:5px;
+                 color:#fff; padding:0.7rem 1rem; font-size:0.88rem; margin-bottom:0.75rem; font-family:monospace;"
+          onkeydown="if(event.key==='Enter') activateLicense()">
+        <p id="license-error" style="color:#f85149; font-size:0.8rem; min-height:1.2em; margin-bottom:0.75rem;"></p>
+        <button id="license-activate-btn" onclick="activateLicense()"
+          style="width:100%; background:#C9A84C; color:#000; border:none; border-radius:5px;
+                 padding:0.75rem; font-size:0.95rem; font-weight:700; cursor:pointer; margin-bottom:0.75rem;">
+          Activate License
+        </button>
+        <p style="font-size:0.78rem; color:#444; margin-bottom:0.5rem;">
+          Don't have a key?
+          <a href="https://thor.rfbitcoin.com#pricing" target="_blank" style="color:#C9A84C;">Subscribe here</a>
+        </p>
+        <p style="font-size:0.75rem;">
+          <a href="#" onclick="dismissLicenseModal(); return false;" style="color:#333;">Continue without license (free tier)</a>
+        </p>
+      </div>
+    </div>
 
     <!-- Global disclaimer footer -->
     <div style="background:rgba(255,255,255,0.015); border-top:1px solid rgba(255,255,255,0.06); padding:12px 24px; text-align:center; font-size:0.72em; color:#444; line-height:1.6;">

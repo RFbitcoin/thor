@@ -1237,6 +1237,27 @@ def analytics_resolve():
 
 
 # ---------------------------------------------------------------------------
+# License routes
+# ---------------------------------------------------------------------------
+@app.route('/api/license/status')
+def license_status():
+    from license import check
+    return jsonify(check())
+
+@app.route('/api/license/activate', methods=['POST'])
+def license_activate():
+    data = request.get_json() or {}
+    key  = data.get('key', '').strip()
+    if not key:
+        return jsonify({'ok': False, 'error': 'License key is required.'}), 400
+    from license import activate
+    success, message, _ = activate(key)
+    if success:
+        return jsonify({'ok': True, 'message': message})
+    return jsonify({'ok': False, 'error': message}), 400
+
+
+# ---------------------------------------------------------------------------
 # Health endpoint (used by watchdog)
 # ---------------------------------------------------------------------------
 @app.route('/api/health')
