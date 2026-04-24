@@ -69,21 +69,3 @@ Filename: "powershell.exe"; \
   Parameters: "-Command ""& 'C:\THOR\tools\nssm.exe' stop THOR; & 'C:\THOR\tools\nssm.exe' remove THOR confirm"""; \
   RunOnceId: "RemoveTHORService"
 
-[Code]
-// Check if .NET and PowerShell 5.1+ are available
-function InitializeSetup(): Boolean;
-var
-  PSVersion: String;
-begin
-  Result := True;
-  if not RegQueryStringValue(HKLM,
-    'SOFTWARE\Microsoft\PowerShell\3\PowerShellEngine',
-    'PowerShellVersion', PSVersion) then
-  begin
-    MsgBox(
-      'Windows PowerShell 5.1 or later is required.' + #13#10 +
-      'Please update Windows and try again.',
-      mbError, MB_OK);
-    Result := False;
-  end;
-end;
